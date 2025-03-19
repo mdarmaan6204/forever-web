@@ -1,14 +1,55 @@
-import React ,{ useContext } from 'react';
-import Title from '../components/Title';
-import { ShopContext } from '../context/ShopContext';
+import React, { useContext, useEffect, useState } from "react";
+import Title from "../components/Title";
+import { ShopContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Orders = () => {
-  const { orders, products, currency } = useContext(ShopContext);
+  const { backendURL, products, token, currency } = useContext(ShopContext);
+
+  const [orderData, setOrderData] = useState([]);
+
+  const fetchOrders = async () => {
+    try {
+      if (!token) return;
+
+      const res = await axios.get(backendURL + "/api/order/myorders", {
+        headers: { token },
+      });
+      if (res.data.success) {
+        let allOrdersItem = [];
+        res.data.orders.forEach((order) => {
+          order.items.forEach((item) => {
+            if (typeof item === "object" && item !== null) {
+              // Add additional properties to the item
+              item["status"] = order.status;
+              item["payment"] = order.payment;
+              item["paymentMethod"] = order.paymentMethod;
+              item["date"] = order.date;
+              allOrdersItem.push(item);
+            } else {
+              console.warn("Invalid item format:", item);
+            }
+          });
+        });
+        setOrderData(allOrdersItem.reverse());
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [token]);
 
   // Function to format the current date
   const formatDate = (date) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options);
   };
 
   // Get the current date
@@ -17,17 +58,24 @@ const Orders = () => {
   return (
     <div className="pt-16 border-t">
       <div className="mb-3 text-2xl">
-        <Title text1={'MY'} text2={'ORDERS'} />
+        <Title text1={"MY"} text2={"ORDERS"} />
       </div>
 
-      {orders.length === 0 ? (
+      {orderData.length === 0 ? (
         <p className="text-gray-500">You have no orders.</p>
       ) : (
         <div>
-          {orders.map((order, index) => {
+          {orderData.map((order, index) => {
             const productData = products.find(
               (product) => product._id === order._id
             );
+
+            if (!productData) {
+              console.warn(
+                `Product not found for productId: ${order.productId}`
+              );
+              return null; // Skip rendering if productData is undefined
+            }
 
             return (
               <div
