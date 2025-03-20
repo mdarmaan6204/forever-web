@@ -123,7 +123,7 @@ const Orders = () => {
                     <p className="text-sm md:text-base">{order.status}</p>
                   </div>
                   <button
-                    onClick={fetchOrders}
+                    onClick = {() => fetchOrders()} 
                     className="border px-4 py-2 text-sm font-medium rounded-sm text-gray-700"
                   >
                     Track Order
