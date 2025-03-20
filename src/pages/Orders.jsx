@@ -85,7 +85,7 @@ const Orders = () => {
                 <div className="flex items-start gap-6">
                   <img
                     src={productData.image[0]}
-                    alt=""
+                    alt="image"
                     className="w-16 sm:w-20"
                   />
 
@@ -102,8 +102,17 @@ const Orders = () => {
                       <p>Quantity: {order.quantity}</p>
                       <p>Size: {order.size}</p>
                     </div>
-                    <p className="mt-2">
-                      Date: <span className="text-gray-400">{currentDate}</span>
+                    <p className="mt-1">
+                      Date:
+                      <span className="text-gray-400">
+                        {new Date(order.date).toDateString()}
+                      </span>
+                    </p>
+                    <p className="mt-1 uppercase">
+                      Payment :
+                      <span className="text-gray-400">
+                        {order.paymentMethod}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -111,9 +120,12 @@ const Orders = () => {
                 <div className="flex justify-between md:w-1/2">
                   <div className="flex items-center gap-2">
                     <p className="min-w-2 h-2 rounded-full bg-green-400"></p>
-                    <p className="text-sm md:text-base">Ready to ship</p>
+                    <p className="text-sm md:text-base">{order.status}</p>
                   </div>
-                  <button className="border px-4 py-2 text-sm font-medium rounded-sm text-gray-700">
+                  <button
+                    onClick={fetchOrders}
+                    className="border px-4 py-2 text-sm font-medium rounded-sm text-gray-700"
+                  >
                     Track Order
                   </button>
                 </div>
